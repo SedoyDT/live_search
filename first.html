@@ -1,0 +1,177 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <title>Document</title>
+</head>
+
+<body>
+    <form action="search" method="post" name="form" onsubmit="return false;">
+        <p>
+            <input type="text" id="search_input" oninput="makeSearchInData()">
+            <div id="result">
+            	<ul id='ul'></ul>
+            </div>
+            <div id = "clicked">
+                   
+            	</div>
+        </p>
+    </form>
+    <div id="res_Search">Начните вводить запрос</div>
+    <p id="log_div"></p>
+    <!-- <script type="text/javascript" src="http://code.jquery.com/jquery-1.7.2.min.js"></script> -->
+    <!-- <script src="https://cdnjs.cloudflare.com/ajax/libs/jquery/3.4.1/jquery.min.js"></script> -->
+
+    <script src="script.js"></script>
+</body>
+<script>
+let cities_array; // Массив с данными
+let found_array = []; // Массив результатов
+let search_input = document.getElementById('search_input'); // Строка поиска
+let cities_url = 'https://pkgstore.datahub.io/core/world-cities/world-cities_json/data/5b3dd46ad10990bca47b04b4739a02ba/world-cities_json.json';
+let cities_list = document.getElementById('ul');
+let result_list = document.getElementById('result');
+let clicked_result = document.getElementById('clicked');
+//let alert_id = getIndexOnClick()
+let ul = document.querySelector("#ul");
+ul.addEventListener('click', function(event) {
+    
+    let id = event.target.id;
+    showInfo(id, cities_array);
+});
+
+function getUrl(url) {
+    let Httpreq = new XMLHttpRequest();
+
+    Httpreq.open("GET", url, false);
+    Httpreq.send(null);
+
+    return JSON.parse(Httpreq.responseText);
+}
+
+function getSearchString() {
+    let x = search_input.value.toLowerCase().trim();
+
+    if (x == '') {
+        return false;
+    } else {
+        return x;
+    }
+}
+
+function getFilteredCities(search_string) {
+    let variants = [];
+
+    for (let i = 0; i < cities_array.length; i++) {
+        if (cities_array[i].name.toLowerCase().indexOf(search_string) == 0) {
+            variants.unshift(cities_array[i]);
+        } else if (cities_array[i].name.toLowerCase().indexOf(search_string) != -1) {
+            variants.push(cities_array[i]);
+        }
+
+    }
+    return variants;
+}
+
+function showFilteredCities(arr) {
+    let max_visile_items = 10;
+    let remains = arr.length - max_visile_items;
+    cities_list.innerHTML = "";
+
+    for (let i = 0; i < arr.length; i++) {
+        if (i == max_visile_items) {
+            let li = document.createElement('li');
+            li.setAttribute('id', i)
+            li.appendChild(document.createTextNode("Выведено " + max_visile_items + " и еще " + remains + " вариантов"));
+            cities_list.appendChild(li);
+            break;
+        }
+        // console.log(arr[i].name)
+        let li = document.createElement('li');
+        li.setAttribute('class', "cities_list_item")
+        li.setAttribute('id', i)
+        li.appendChild(document.createTextNode(arr[i].name + " в стране: " + arr[i].country));
+        cities_list.appendChild(li);
+    }
+}
+
+function makeSearchInData() {
+    let search_string = getSearchString();
+    let filtered_cities = getFilteredCities(search_string);
+    // console.log(filtered_cities)
+    let result = showFilteredCities(filtered_cities);
+    //let info = getInfo(filtered_cities)
+    //let show_Info = showInfo(alert_id)
+
+    return result;
+}
+
+
+// function getInfo(arr) {
+//     let p = document.createElement('p');
+
+//     document.getElementById("ul").onclick = function(event) {
+//          let target = [].indexOf.call(this.children, (event ? event.target : false));
+
+//         if (target != 10) {
+
+//             p.appendChild(document.createTextNode(JSON.stringify(arr[target])))
+
+
+//         }
+//           clicked_result.appendChild(p)
+//     }
+//     // if (arr.length == 0){
+//     //  result.remove() = ''
+//     // }
+// }
+// function getInfo(arr){
+//  let p = document.createElement('p');
+
+// document.querySelector('ul').addEventListener('click', function(e) {
+//   const index = [...this.querySelectorAll('li')].indexOf(e.target.closest('li'));
+//   console.log(index);
+//   p.appendChild(document.createTextNode(JSON.stringify(arr[index])))
+//   clicked_result.appendChild(p)
+
+// });
+//  }
+// function getInfo(arr) {
+//     document.getElementById('ul').onclick = function(e) {
+//         const index = [...this.querySelectorAll('li')].indexOf(e.target);
+
+//         console.log(index);
+//         if (index != -1 && index != 10) {
+//             let p = document.createElement('p');
+//             p.appendChild(document.createTextNode(JSON.stringify(arr[index])))
+//             clicked_result.appendChild(p)
+//         };
+
+//     }
+// }
+
+// function getIndexOnClick() {
+//     let id ;
+//     let ul = document.querySelector("#ul")
+//     ul.addEventListener('click', function (event) {
+//         let id = event.target.id;
+
+//           showInfo(id)
+
+//     });
+
+// }
+
+function showInfo(index, arr) {
+    if (index != -1 && index != 10) {
+        let p = document.createElement('p');
+
+        p.appendChild(document.createTextNode(JSON.stringify(arr[index])));
+        clicked_result.appendChild(p);
+        //console.log(JSON.stringify(arr[index]))
+    }
+}
+cities_array = getUrl(cities_url);
+</script>
+</html>
